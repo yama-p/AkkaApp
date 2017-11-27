@@ -15,8 +15,8 @@ class HomeController @Inject() extends Controller {
 
   def show(number: Long) = Action {
     ClientObject.sendNumberToRemote(number) match {
-      case Right(s) => Ok(views.html.index(s"Show => $number * 2 = $s"))
-      case Left(e) => Ok(views.html.index(s"Error!!! : $e"))
+      case Right(s) => Ok(views.html.show(s"Show => $number * 2 = $s"))
+      case Left(e) => Ok(views.html.show(s"Error!!! : $e"))
     }
   }
 }
