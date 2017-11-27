@@ -1,8 +1,13 @@
-
 @(message: String)
 
-@main("Welcome to Play") {
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>Akka Remote 学習</title>
+    </head>
+    <body>
+    @message
+    </body>
+</html>
 
-    @play20.welcome(message, style = "Scala")
-
-}
