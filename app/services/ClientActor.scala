@@ -1,20 +1,18 @@
 package services
 
-import java.util.concurrent.TimeUnit
-
-import akka.actor.{Actor, ActorLogging, ActorSelection}
 import play.api.Logger
+import akka.actor.{Actor, ActorSelection}
 import akka.pattern.ask
 import akka.util.Timeout
-import services.common.SendData
+import services.common.{SendToClient, SendToRemote}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ClientActor extends Actor with ActorLogging {
-  val remoteActor: ActorSelection = context.actorSelection(ClientObject.config.getString("app.remote-system.remote-actor"))
+class ClientActor extends Actor {
+  val remoteActor: ActorSelection = context.actorSelection(ClientObject.config.getString("app.remote-app.remote-actor"))
   implicit val timeout: Timeout = Timeout(2000 milliseconds)
 
   @throws[Exception](classOf[Exception])
@@ -23,12 +21,14 @@ class ClientActor extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case SendData(send: Long) =>
+    case SendToClient(send: Long) =>
       try {
+        Logger.info(s"$sender")
         val localSender = sender
-        val f = remoteActor ? SendData(send)
+        val f = remoteActor ? SendToRemote(send) // ASK
         f.onComplete {
           case Success(s) =>
+            Logger.info(s"$sender")
             Logger.info(s"ClientActor : Success : $s")
             localSender ! s
           case Failure(e) =>

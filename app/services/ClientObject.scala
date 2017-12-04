@@ -1,31 +1,31 @@
 package services
 
 import java.io.File
-
 import akka.actor.{ActorRef, ActorSystem, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import play.api.Logger
 import akka.pattern.ask
 import akka.util.Timeout
-import services.common.{ReqData, SendData}
+import services.common.{ResponseMsg, SendToClient}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 object ClientObject {
   implicit val timeout: Timeout = Timeout(3000 milliseconds)
-  val configFile: String = getClass.getClassLoader.getResource("client_application.conf").getFile
+
+  val configFile: String = getClass.getClassLoader.getResource("client.conf").getFile
   val config: Config = ConfigFactory.parseFile(new File(configFile))
   val system = ActorSystem("client-system", config)
   val clientActor: ActorRef = system.actorOf(Props[ClientActor], name = "client")
 
   def sendNumberToRemote(n: Long): Either[Throwable, String] = {
     try {
-      val f = clientActor ? SendData(n)
+      val f = clientActor ? SendToClient(n) // ASK
       Await.ready(f, timeout.duration)
       f.value.get match {
-        case Success(ReqData(s: String)) =>
+        case Success(ResponseMsg(s: String)) =>
           Logger.info(s"ClientObject : Success : Right($s)")
           Right(s)
         case Failure(e) =>

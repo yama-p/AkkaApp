@@ -1,6 +1,7 @@
 package services
 
 package object common {
-  case class SendData(msg: Long)
-  case class ReqData(msg: String)
+  case class SendToClient(msg: Long)
+  case class SendToRemote[A](msg: A)
+  case class ResponseMsg(msg: String)
 }
